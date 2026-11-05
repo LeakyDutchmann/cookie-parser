@@ -55,12 +55,30 @@ fn main() {
 fn handle() -> anyhow::Result<()> {
     println!("Reading input file");
     
-    let mut file = File::open("source/base64.txt").unwrap();
-    let mut content = String::new();
-    match file.read_to_string(&mut content) {
+    match std::fs::create_dir_all("source") {
         Ok(_) => {},
-        Err(e) => {return Err(anyhow!("Failed to read input file: {e}"));}
+        Err(e) => {
+            return Err(anyhow!("Failed to create dir at source/base64.txt Error {e}"));
+        }
     }
+
+    let mut content = String::new();
+    if let Ok(mut file) = File::open("source/base64.txt") {
+        match file.read_to_string(&mut content) {
+            Ok(_) => {},
+            Err(e) => {return Err(anyhow!("Failed to read input file: {e}"));}
+        }
+    } else {
+        let line = "Paste you base64 here!".as_bytes();
+        match fs::write("source/base64.txt", line) {
+            Ok(_) => {},
+            Err(e) => {
+                return Err(anyhow!("failed to initialize base64.txt. Error: {e}"));
+            }
+        }
+    }
+    
+    
     
     let input = content.trim();
 
