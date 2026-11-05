@@ -39,7 +39,7 @@ fn main() {
     match result {
         Ok(_) => {},
         Err(e) => {
-            println!("{e}");
+            println!("ERROR: {e}");
         }
     }
 
@@ -62,6 +62,11 @@ fn handle() -> anyhow::Result<()> {
         }
     }
 
+    println!(
+        "source exists: {}",
+        std::path::Path::new("source").exists()
+    );
+
     let mut content = String::new();
     if let Ok(mut file) = File::open("source/base64.txt") {
         match file.read_to_string(&mut content) {
@@ -83,7 +88,7 @@ fn handle() -> anyhow::Result<()> {
     let input = content.trim();
 
     if input.is_empty() {
-        println!("Input file is empty. Error.")
+        return Err(anyhow!("Input file is empty. Error."))
     }
     
     let decoded = match general_purpose::STANDARD.decode(input) {
@@ -128,7 +133,7 @@ fn handle() -> anyhow::Result<()> {
 
     match fs::write(path.clone() + "cookies.json", json) {
         Ok(_) => {
-            println!("File is saved to json/coookies.json")
+            println!("SUCCESS: File is saved to json/coookies.json")
         }, 
         Err(e) =>{
             return Err(anyhow!("Failed to write file at {path}. Error: {e}"));
