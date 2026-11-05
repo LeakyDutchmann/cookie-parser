@@ -1,5 +1,5 @@
-use std::{fs, io::self};
-
+use std::{fs::{self, File}, io::self};
+use std::io::prelude::*;
 use serde::{Deserialize, Serialize};
 use base64::{Engine as _, engine::{general_purpose}};
 use anyhow::anyhow;
@@ -53,22 +53,20 @@ fn main() {
 }
 
 fn handle() -> anyhow::Result<()> {
-    let mut input = String::new();
-    println!("Paste base64 code for serialization");
+    println!("Reading input file");
     
-    loop {
-        match io::stdin().read_line(&mut input) {
-            Ok(n) => {
-                println!("Accepted {n} bytes as input");
-                break;
-            }
-            Err(e) => {
-                return Err(anyhow!("Failed to read input: {e}"));
-            }
-        }
+    let mut file = File::open("source/base64.txt").unwrap();
+    let mut content = String::new();
+    match file.read_to_string(&mut content) {
+        Ok(_) => {},
+        Err(e) => {return Err(anyhow!("Failed to read input file: {e}"));}
     }
     
-    let input = input.trim();
+    let input = content.trim();
+
+    if input.is_empty() {
+        println!("Input file is empty. Error.")
+    }
     
     let decoded = match general_purpose::STANDARD.decode(input) {
         Ok(b) => {
